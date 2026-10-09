@@ -2,6 +2,7 @@ import hre from "hardhat";
 import { expect } from "chai";
 import { MyToken } from "../typechain-types";
 import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
+import { sign } from "node:crypto";
 
 const mintingAmount = 100n;
 const decimals = 18n;
@@ -45,11 +46,27 @@ describe("My Token", () => {
   });
   describe("Transfer", () => {
     it("should have 0.5MT", async () => {
+      const signer0 = signers[0];
       const signer1 = signers[1];
-      await myTokenC.transfer(
-        hre.ethers.parseUnits("0.5", decimals),
-        signer1.address,
-      );
+      expect(
+        await myTokenC.transfer(
+          hre.ethers.parseUnits("0.5", decimals),
+          signer1.address,
+        ),
+      )
+        .to.emit(myTokenC, "Transfer")
+        .withArgs(
+          signer0.address,
+          signer1.address,
+          hre.ethers.parseUnits("0.4", decimals),
+        );
+      expect(1)
+        .to.emit(myTokenC, "Transfer")
+        .withArgs(
+          signer0.address,
+          signer1.address,
+          hre.ethers.parseUnits("0.4", decimals),
+        );
       expect(await myTokenC.balanceOf(signer1.address)).equal(
         hre.ethers.parseUnits("0.5", decimals),
       );
