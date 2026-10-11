@@ -29,6 +29,7 @@ contract MyToken{
     function transferFrom(address from, address to, uint256 amount)  external {
         address spender = msg.sender;
         require(allowance[from][spender] >= amount, "insufficient allowance");
+        require(balanceOf[from] >= amount, "insufficient balance");
         allowance[from][spender] -= amount;
         balanceOf[from] -= amount;
         balanceOf[to] += amount;
@@ -51,14 +52,3 @@ contract MyToken{
     }
 }
 
-/*
-approve 
-- allow spender address to send my tokwn
-transferFrom
-- spender: owner -> target address
-
-* token owner --> bank contract
-* token owner --> router contract --> bank contract
-* token owner --> router contract --> bacnk contract(multi contract)
-
-*/
